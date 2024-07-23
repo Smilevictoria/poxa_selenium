@@ -1,0 +1,109 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import json
+from itertools import islice
+# from selenium.webdriver.chrome.service import Service
+
+# driver_path = "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe" 
+# service = Service(executable_path=driver_path)
+# driver = webdriver.Chrome(service=service)
+
+driver = webdriver.Chrome()
+url  = "https://info.poxa.io/"
+driver.get(url)
+
+categories = [
+    "用電大戶", "光儲合一", "市場資訊", "E-dReg", "sReg", "dReg", "即時備轉", "補充備轉",
+     "創新能源技術", "電價方案", "再生能源", "台電說明會", "規範解析", "台電供需資訊"
+]
+index = [1, 3, 5]
+tags = []
+
+tag_list = driver.find_element(By.CLASS_NAME,"flex.flex-wrap.gap-3.px-6")
+for i in range(len(index)):
+    tag = tag_list.find_elements(By.XPATH, f".//a[contains(text(), '{categories[index[i]]}')]")
+    # "E-dReg" & "dReg"  XPATH會抓符合字樣，需辨識
+    if tag[0].text == categories[index[i]]:
+            tags.append(tag[0])
+            print(tag[0].text)
+    else:
+        tags.append(tag[1])
+        print(tag[1].text)
+# print(t.get_attribute('href')) 
+for t in tags:
+    t.click()
+
+
+origin_url = driver.current_url
+data_list = []
+data_size = 5   # 要抓多少筆資料
+for target in range(data_size):
+    # print(driver.current_url)
+    links_list = driver.find_elements(By.TAG_NAME,"a")
+    link = links_list[target+16].get_attribute('href') #first title start from 16
+    title_list = driver.find_elements(By.CLASS_NAME,"text-2xl.font-bold")
+    data_title = title_list[target].text
+    content_list = driver.find_elements(By.CLASS_NAME,"text-gray-500")
+    data_content = content_list[target].text
+    label_list = driver.find_elements(By.CLASS_NAME,"mt-4.flex.gap-2")
+    labels = label_list[target].find_elements(By.TAG_NAME,"span")
+    # data_labels = [label.text for label in labels] 無序列
+    data_labels = {index: label.text for index, label in enumerate(labels)}
+
+    print(data_title)
+    print(data_content) 
+    for index, label in enumerate(labels):
+        print(f"{index}: {label.text}")
+
+    links_list[target+16].click()
+    driver.get(link)
+    # print(driver.current_url)
+
+    # subtitle 2~7 & sub_content 0~5
+    data_subtitle = []
+    data_subContent = [] 
+    flag_k = 2
+    # 0~5
+    for flag in range(6):
+        found_records = False
+        while not found_records:
+            # print(f"Trying with k={flag_k} and flag={flag}")
+            subtitle = driver.find_elements(By.TAG_NAME, "p")
+            records = subtitle[flag + flag_k].find_elements(By.TAG_NAME, "a")
+                
+            if records:
+                found_records = True
+                for record in records:
+                    if record.text == "下週預告❓":
+                        break
+                    data_subtitle.append(record.text)
+                    sub_content = subtitle[flag + flag_k].find_element(By.XPATH, 'following-sibling::ul')
+                    data_subContent.append(sub_content.text)
+            else:
+                flag_k += 1  # flag_k++ Rerun
+                
+
+
+    # Prepare data to save in JSON 
+    data = {
+        "title": data_title,
+        "content": data_content,
+        "labels": data_labels,
+        "subtitle": {},
+        "subcontent": {}
+    }
+
+    for i in range(len(data_subtitle)):
+        data["subtitle"][str(i)] = data_subtitle[i]
+        data["subcontent"][str(i)] = data_subContent[i]
+
+    data_list.append(data)
+    driver.get(origin_url)
+
+with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
+    json.dump(data_list, f, ensure_ascii=False, indent=4)
+    
+# driver.implicitly_wait(10)
+# print(driver.current_url)
+print("爬完ㄌㄌㄌㄌ~")
+driver.close
