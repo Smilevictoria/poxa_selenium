@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import json
-from itertools import islice
 # from selenium.webdriver.chrome.service import Service
 
 # driver_path = "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe" 
@@ -61,7 +60,8 @@ for target in range(data_size):
 
     # subtitle 2~7 & sub_content 0~5
     data_subtitle = []
-    data_subContent = [] 
+    data_subContent = []
+    data_section = [] 
     flag_k = 2
     # 0~5
     for flag in range(6):
@@ -81,16 +81,34 @@ for target in range(data_size):
                     data_subContent.append(sub_content.text)
             else:
                 flag_k += 1  # flag_k++ Rerun
+
+    # section_list = driver.find_elements(By.CLASS_NAME, "text-3xl.font-bold")
+    # for flag in range(len(section_list) - 1):
+    #     section_between_h2s = []
+    #     print(f"{flag}:***************")
+    #     if section_list[flag + 1].text == "下週預告❓":
+    #         break
+    #     sections = section_list[flag].find_elements(By.XPATH, 'following-sibling::*')
+    #     for s in sections:
+    #         if s == section_list[flag + 1]:
+    #             break
+    #         section_between_h2s.append(s)
+    #     for sbh in section_between_h2s:
+    #         if sbh.tag_name == 'ul':
+    #             print(sbh.text)
+    #             data_section.append(sbh.text)
+    #         elif sbh.tag_name == 'p':
+    #             print(sbh.text)
+    #             data_section.append(sbh.text)
                 
-
-
     # Prepare data to save in JSON 
     data = {
         "title": data_title,
         "content": data_content,
         "labels": data_labels,
         "subtitle": {},
-        "subcontent": {}
+        "subcontent": {},
+        "section": {}
     }
 
     for i in range(len(data_subtitle)):
@@ -100,8 +118,9 @@ for target in range(data_size):
     data_list.append(data)
     driver.get(origin_url)
 
-with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
-    json.dump(data_list, f, ensure_ascii=False, indent=4)
+# save as a file
+# with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
+#     json.dump(data_list, f, ensure_ascii=False, indent=4)
     
 # driver.implicitly_wait(10)
 # print(driver.current_url)
