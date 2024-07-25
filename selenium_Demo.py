@@ -35,7 +35,7 @@ for t in tags:
 
 origin_url = driver.current_url
 data_list = []
-data_size = 5   # 要抓多少筆資料
+data_size = 3   # 要抓多少筆資料
 for target in range(data_size):
     # print(driver.current_url)
     links_list = driver.find_elements(By.TAG_NAME,"a")
@@ -82,24 +82,25 @@ for target in range(data_size):
             else:
                 flag_k += 1  # flag_k++ Rerun
 
-    # section_list = driver.find_elements(By.CLASS_NAME, "text-3xl.font-bold")
-    # for flag in range(len(section_list) - 1):
-    #     section_between_h2s = []
-    #     print(f"{flag}:***************")
-    #     if section_list[flag + 1].text == "下週預告❓":
-    #         break
-    #     sections = section_list[flag].find_elements(By.XPATH, 'following-sibling::*')
-    #     for s in sections:
-    #         if s == section_list[flag + 1]:
-    #             break
-    #         section_between_h2s.append(s)
-    #     for sbh in section_between_h2s:
-    #         if sbh.tag_name == 'ul':
-    #             print(sbh.text)
-    #             data_section.append(sbh.text)
-    #         elif sbh.tag_name == 'p':
-    #             print(sbh.text)
-    #             data_section.append(sbh.text)
+    section_list = driver.find_elements(By.CLASS_NAME, "text-3xl.font-bold")
+    for flag in range(1, len(section_list)):
+        section_between_h2s = []
+        section_part = []
+        if section_list[flag].text == "下週預告❓":
+            break
+        sections = section_list[flag].find_elements(By.XPATH, 'following-sibling::*')
+        for s in sections:
+            if s == section_list[flag + 1]:
+                break
+            section_between_h2s.append(s)
+        for sbh in section_between_h2s:
+            if sbh.tag_name == 'p':
+                section_part.append(sbh.text)
+            elif sbh.tag_name == 'ul':
+                section_part.append(sbh.text)
+            elif sbh.tag_name == 'ol':
+                section_part.append(sbh.text)
+        data_section.append(section_part)
                 
     # Prepare data to save in JSON 
     data = {
@@ -114,13 +115,15 @@ for target in range(data_size):
     for i in range(len(data_subtitle)):
         data["subtitle"][str(i)] = data_subtitle[i]
         data["subcontent"][str(i)] = data_subContent[i]
+    for i in range(len(data_section)):
+        data["section"][str(i)] = data_section[i]
 
     data_list.append(data)
     driver.get(origin_url)
 
 # save as a file
-# with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
-#     json.dump(data_list, f, ensure_ascii=False, indent=4)
+with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
+    json.dump(data_list, f, ensure_ascii=False, indent=4)
     
 # driver.implicitly_wait(10)
 # print(driver.current_url)
