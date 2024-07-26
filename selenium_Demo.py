@@ -35,7 +35,7 @@ for t in tags:
 
 origin_url = driver.current_url
 data_list = []
-data_size = 3   # 要抓多少筆資料
+data_size = 5   # 要抓多少筆資料
 for target in range(data_size):
     # print(driver.current_url)
     links_list = driver.find_elements(By.TAG_NAME,"a")
