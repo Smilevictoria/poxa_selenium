@@ -2,6 +2,9 @@
 Just a tiny selenium demo
 
 1.Choose tags (tag click)
+
 2.Search for articles suitable for tags
+
 3.Look at articles (href click)
+
 4.Get the information in the article
