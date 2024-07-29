@@ -2,7 +2,7 @@
 Just a tiny selenium demo
 
 1.Choose tags (tag click)
-If you want to cancel tag-cilcked, just clicking double times.
+-If you want to cancel tag-cilcked, just clicking double times.
 
 2.Search for articles suitable for tags
 
