@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-api_key = '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'
+api_key = '????'
 client = OpenAI(api_key = api_key)
 
 conversation = [
