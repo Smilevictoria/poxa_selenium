@@ -1,5 +1,5 @@
 # poxa_selenium
-Just a tiny selenium demo
+Just a tiny selenium demo + Gpt with OpenAI
 
 1.Choose tags (tag click)
  -> If you want to cancel tag-cilcked, just clicking double times.
