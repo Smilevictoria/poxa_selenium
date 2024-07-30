@@ -102,7 +102,7 @@ for target in range(data_size):
                 section_part.append(sbh.text)
         data_section.append(section_part)
                 
-    # Prepare data to save in JSON 
+    # Prepare data JSON to saved 
     data = {
         "title": data_title,
         "content": data_content,
