@@ -1,11 +1,12 @@
 from openai import OpenAI
 
-api_key = '????'
+api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 conversation = [
-    {"role": "assistant", "content": "你是一個專業的心理學顧問，請根據問題使用繁體中文回覆"},
-    {"role": "user", "content": "我想學習微表情"}
+    {"role": "assistant", "content": "你是一個專業的關鍵字分析師，會根據這16類對問題進行分析，16類有:用電大戶、光儲合一、市場資訊、E-dReg、sReg、dReg、即時備轉、補充備轉、創新能源技術、電價方案、再生能源、台電說明會、規範解析和台電供需資訊，請根據問題分析該問題符合這16類中的哪幾類，使用繁體中文回覆"},
+    {"role": "user", "content": "我想知道如何計算家中電費?"}, # 跟我介紹一下E-dReg的規範？ 幫我說明目前sReg價金的計算方式？
+    {"role": "assistant", "content": "請只回覆關鍵字"}
 ]
 
 # # 將新提問加到對話歷史
