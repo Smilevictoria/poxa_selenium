@@ -1,6 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import json
+from selenium.common.exceptions import NoSuchElementException
+import json, sys
+sys.path.append('openai')
+from Openai_chatgpt import new_answer
 # from selenium.webdriver.chrome.service import Service
 
 # driver_path = "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe" 
@@ -15,14 +18,16 @@ categories = [
     "用電大戶", "光儲合一", "市場資訊", "E-dReg", "sReg", "dReg", "即時備轉", "補充備轉",
      "創新能源技術", "電價方案", "再生能源", "台電說明會", "規範解析", "台電供需資訊"
 ]
-index = [1, 3, 5]
+target_tags = new_answer.split('、')
+tags_pos = [index for index, category in enumerate(categories) if category in target_tags]
+print(f"位置:{tags_pos}")
 tags = []
 
 tag_list = driver.find_element(By.CLASS_NAME,"flex.flex-wrap.gap-3.px-6")
-for i in range(len(index)):
-    tag = tag_list.find_elements(By.XPATH, f".//a[contains(text(), '{categories[index[i]]}')]")
+for i in range(len(tags_pos)):
+    tag = tag_list.find_elements(By.XPATH, f".//a[contains(text(), '{categories[tags_pos[i]]}')]")
     # "E-dReg" & "dReg"  XPATH會抓符合字樣，需辨識
-    if tag[0].text == categories[index[i]]:
+    if tag[0].text == categories[tags_pos[i]]:
             tags.append(tag[0])
             print(tag[0].text)
     else:
@@ -72,13 +77,16 @@ for target in range(data_size):
             records = subtitle[flag + flag_k].find_elements(By.TAG_NAME, "a")
                 
             if records:
-                found_records = True
-                for record in records:
-                    if record.text == "下週預告❓":
-                        break
-                    data_subtitle.append(record.text)
+                try:
                     sub_content = subtitle[flag + flag_k].find_element(By.XPATH, 'following-sibling::ul')
-                    data_subContent.append(sub_content.text)
+                    found_records = True
+                    for record in records:
+                        if record.text == "下週預告❓":
+                            break
+                        data_subtitle.append(record.text)
+                        data_subContent.append(sub_content.text)
+                except NoSuchElementException:
+                    flag_k += 1 
             else:
                 flag_k += 1  # flag_k++ Rerun
 
@@ -102,7 +110,7 @@ for target in range(data_size):
                 section_part.append(sbh.text)
         data_section.append(section_part)
                 
-    # Prepare data JSON to saved 
+    # Prepare data to save in JSON 
     data = {
         "title": data_title,
         "content": data_content,
