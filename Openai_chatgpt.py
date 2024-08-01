@@ -1,17 +1,22 @@
 from openai import OpenAI
+from selenium_Demo import get_data
 
 api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 conversation = [
-    {"role": "assistant", "content": "你是一個專業的關鍵字分析師，會根據這16類對問題進行分析，16類有:用電大戶、光儲合一、市場資訊、E-dReg、sReg、dReg、即時備轉、補充備轉、創新能源技術、電價方案、再生能源、台電說明會、規範解析和台電供需資訊，請根據問題分析該問題符合這16類中的哪幾類，使用繁體中文回覆"},
-    {"role": "user", "content": "我想知道如何計算家中電費?"}, # ex1:跟我介紹一下E-dReg的規範？ ex2:幫我說明目前sReg價金的計算方式？
-    {"role": "assistant", "content": "請只回覆關鍵字"}
+    {"role": "assistant", "content": "你是一個專業的關鍵字分析師，會根據這16類對問題進行分析，16類有:用電大戶、光儲合一、市場資訊、E-dReg、sReg、dReg、即時備轉、補充備轉、創新能源技術、電價方案、再生能源、台電說明會、規範解析和台電供需資訊。請根據問題分析該問題符合這16類中的哪幾類，並使用繁體中文回覆。除此之外，請回覆問題中涉及的時間關鍵字，例如：本週、今天。如果問題符合多個類別，請列出所有相關的類別關鍵字。"},
+    {"role": "user", "content": "本週市場情況摘要？"}, # 跟我介紹一下E-dReg的規範？光儲的參與資格是？ 幫我說明目前sReg價金的計算方式？
+    {"role": "assistant", "content": "市場資訊,本週"},
+    {"role": "user", "content": "幫我說明目前sReg價金的計算方式？"},
+    {"role": "assistant", "content": "sReg,規範解析,目前"},
+    {"role": "user", "content": "光儲的參與資格是？"},
+    {"role": "assistant", "content": "光儲合一,規範解析"}
 ]
 
-# # 將新提問加到對話歷史
-# new_user_input = "請問有關於戀愛的小技巧嗎？"
-# conversation_history.append({"role": "user", "content": new_user_input})
+# 將新提問加到對話歷史
+new_user_input = "目前E-dReg的投報率如何？你建議投資嗎？" # 本週頻率變化？本週市場情況摘要？本週是否有台電新的公告？
+conversation.append({"role": "user", "content": new_user_input})
 
 completion = client.chat.completions.create(
   model="gpt-3.5-turbo",
@@ -21,8 +26,50 @@ completion = client.chat.completions.create(
 new_answer = completion.choices[0].message.content
 print(new_answer)
 
-# print("//////////////////////////////")
-# print(completion)
+data_list = get_data(new_answer)
+summarys = []
+for data in data_list:
+    subtitles = "\n".join([f"{key}: {value}" for key, value in data["subtitle"].items()])
+    subcontents = "\n".join([f"{key}: {value}" for key, value in data["subcontent"].items()])
+    sections = "\n".join([f"{key}: {', '.join(section)}" for key, section in data["section"].items()])
+    
+    data_text = f"""
+    Title: {data['title']}
+    Content: {data['content']}
+    Labels: {', '.join(data['labels'].values())}
+    Subtitles: {subtitles}
+    Subcontents: {subcontents}
+    Sections: {sections}
+    """
 
+    data_conversation = [
+        {"role": "system", "content": "你是一個專業的文章摘要助手，會根據輸入的文本生成250字的摘要。請使用繁體中文回覆。"},
+        {"role": "user", "content": f"請幫根據{new_user_input}從{data_text}總結內容"}
+    ]
+
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=data_conversation
+    )
+
+    summary = completion.choices[0].message.content
+    summarys.append(summary)
+
+if len(data_list) > 1:
+    combined_summaries = "\n\n".join(summarys)
+    final_conversation = [
+        {"role": "system", "content": "你是一個專業的文章摘要助手，會根據輸入的文本生成250字的摘要。請使用繁體中文回覆。"},
+        {"role": "user", "content": f"請幫我根據{new_user_input}總結以下多篇文章的摘要:\n\n{combined_summaries}"}
+    ]
+
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=final_conversation
+    )
+
+    final_summary = completion.choices[0].message.content
+    print(final_summary)
+else:
+    print(summarys[0])
 # price = completion.usage.prompt_tokens/1000 * 0.0015 + completion.usage.completion_tokens/1000 * 0.002    
 # print(price)
