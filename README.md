@@ -8,10 +8,14 @@ Just a tiny selenium demo + Gpt with OpenAI
 
 3.Get the title in the article
 
-4.Look at articles (href click)
+4.Get the content in the article
 
-5.Get the subtitle in the article
+5.Get the label in the article
 
-6.Get the subcontent in the article
+6.Look at articles (href click)
 
-7.Get the section in the article
+7.Get the subtitle in the article
+
+8.Get the subcontent in the article
+
+9.Get the section in the article
