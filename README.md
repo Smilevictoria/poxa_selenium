@@ -10,7 +10,7 @@ Just a tiny selenium demo + Gpt with OpenAI
 
 4.Get the content in the article
 
-5.Get the label in the article
+5.Get the labels in the article
 
 6.Look at articles (href click)
 
