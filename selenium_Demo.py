@@ -58,9 +58,9 @@ def get_data_from_web(new_answer):
         data_labels = {index: label.text for index, label in enumerate(labels)}
 
         print(data_title)
-        print(data_content) 
-        for index, label in enumerate(labels):
-            print(f"{index}: {label.text}")
+        # print(data_content) 
+        # for index, label in enumerate(labels):
+        #     print(f"{index}: {label.text}")
 
         links_list[target+16].click()
         driver.get(link)
@@ -141,6 +141,3 @@ def get_data_from_web(new_answer):
     driver.close
 
     return data_list
-
-def get_data(new_answer):
-    return get_data_from_web(new_answer)

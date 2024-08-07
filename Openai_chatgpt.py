@@ -1,5 +1,5 @@
 from openai import OpenAI
-from selenium_Demo import get_data
+from selenium_Demo import get_data_from_web
 
 api_key = '?????'
 client = OpenAI(api_key = api_key)
@@ -26,7 +26,7 @@ completion = client.chat.completions.create(
 new_answer = completion.choices[0].message.content
 print(new_answer)
 
-data_list = get_data(new_answer)
+data_list = get_data_from_web(new_answer)
 summarys = []
 for data in data_list:
     subtitles = "\n".join([f"{key}: {value}" for key, value in data["subtitle"].items()])
