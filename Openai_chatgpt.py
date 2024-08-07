@@ -15,7 +15,7 @@ conversation = [
 ]
 
 # 將新提問加到對話歷史
-new_user_input = "目前E-dReg的投報率如何？你建議投資嗎？" # 本週頻率變化？本週市場情況摘要？本週是否有台電新的公告？
+new_user_input = "本週頻率變化？" # 本週頻率變化？本週市場情況摘要？本週是否有台電新的公告？目前E-dReg的投報率如何？你建議投資嗎？
 conversation.append({"role": "user", "content": new_user_input})
 
 completion = client.chat.completions.create(

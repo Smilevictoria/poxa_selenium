@@ -132,9 +132,26 @@ def get_data_from_web(new_answer):
         data_list.append(data)
         driver.get(origin_url)
 
-    # save as a file
+    # # save as a file
+    # with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
+    #     json.dump(data_list, f, ensure_ascii=False, indent=4)
+
+     # 讀取現有資料
+    try:
+        with open('GetchUp_data.json', 'r', encoding='utf-8') as f:
+            existing_data = json.load(f)
+    except FileNotFoundError:
+        existing_data = []
+
+    # 新增不重複的資料
+    existing_titles = {item['title'] for item in existing_data}
+    for new_data in data_list:
+        if new_data['title'] not in existing_titles:
+            existing_data.append(new_data)
+
+    # 保存合併後的資料
     with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
-        json.dump(data_list, f, ensure_ascii=False, indent=4)
+        json.dump(existing_data, f, ensure_ascii=False, indent=4)
         
     # driver.implicitly_wait(10)
     print("爬完ㄌㄌㄌㄌ~")
