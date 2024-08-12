@@ -2,41 +2,17 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import json
-import sys
 
-sys.path.append('openai')
-from Openai_chatgpt import new_answer
-
-# 初始化WebDriver
+# Initialize WebDriver
 driver = webdriver.Chrome()
 url = "https://info.poxa.io/"
 driver.get(url)
 
-categories = [
-    "用電大戶", "光儲合一", "市場資訊", "E-dReg", "sReg", "dReg", "即時備轉", "補充備轉",
-    "創新能源技術", "電價方案", "再生能源", "台電說明會", "規範解析", "台電供需資訊"
-]
-target_tags = new_answer.split('、')
-tags_pos = [index for index, category in enumerate(categories) if category in target_tags]
-print(f"位置: {tags_pos}")
-
-tags = []
-tag_list = driver.find_element(By.CLASS_NAME, "flex.flex-wrap.gap-3.px-6")
-for pos in tags_pos:
-    tag_elements = tag_list.find_elements(By.XPATH, f".//a[contains(text(), '{categories[pos]}')]")
-    for tag in tag_elements:
-        if tag.text == categories[pos]:
-            tags.append(tag)
-            print(tag.text)
-            break
-
-# 点击标签
-for t in tags:
-    t.click()
-
 origin_url = driver.current_url
 data_list = []
-data_size = 5  # 要抓多少笔资料
+
+# Calculate total number of items
+data_size = total_items = len(driver.find_elements(By.CLASS_NAME, "text-2xl.font-bold"))
 
 for target in range(data_size):
     links_list = driver.find_elements(By.TAG_NAME, "a")
@@ -50,10 +26,6 @@ for target in range(data_size):
     data_labels = {index: label.text for index, label in enumerate(labels)}
 
     print(data_title)
-    print(data_content)
-    for index, label in enumerate(labels):
-        print(f"{index}: {label.text}")
-
     driver.get(link)
 
     data_subtitle = []
@@ -97,7 +69,7 @@ for target in range(data_size):
             sections_between_h2s.append(section)
         data_section.append([s.text for s in sections_between_h2s if s.tag_name in ['p', 'ul', 'ol']])
 
-    # Prepare data to save in JSON
+    # Prepare data to save in MongoDB
     data = {
         "title": data_title,
         "content": data_content,
@@ -110,9 +82,7 @@ for target in range(data_size):
     data_list.append(data)
     driver.get(origin_url)
 
-# Save data to file
 with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
-    json.dump(data_list, f, ensure_ascii=False, indent=4)
+        json.dump(data_list, f, ensure_ascii=False, indent=4)
 
-print("爬完ㄌㄌㄌㄌ~")
 driver.close()
