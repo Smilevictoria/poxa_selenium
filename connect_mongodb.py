@@ -18,7 +18,7 @@ mycol = mydb["info"]
 find_result1 = list(mycol.find({'name': 'Victoria'}))
 print(find_result1[0]['id'])
 
-# get all article
+# get all article with '市場資訊' of labels
 find_result2 = list(mycol.find({}))
 for document in find_result2:
     labels = document.get('labels', {})
