@@ -2,6 +2,16 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import json
+import pymongo
+import json
+from pymongo.server_api import ServerApi
+
+uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
+client = pymongo.MongoClient(uri)
+# client = pymongo.MongoClient(uri, server_api=ServerApi('1'))
+
+mydb = client["WebInformation"]
+mycol = mydb["article"]
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
@@ -73,7 +83,7 @@ for target in range(data_size):
     data = {
         "title": data_title,
         "content": data_content,
-        "labels": data_labels,
+        "labels": {str(i): data_labels[i] for i in range(len(data_labels))},
         "subtitle": {str(i): data_subtitle[i] for i in range(len(data_subtitle))},
         "subcontent": {str(i): data_subContent[i] for i in range(len(data_subContent))},
         "section": {str(i): data_section[i] for i in range(len(data_section))}
@@ -82,7 +92,10 @@ for target in range(data_size):
     data_list.append(data)
     driver.get(origin_url)
 
-with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
-        json.dump(data_list, f, ensure_ascii=False, indent=4)
+# with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
+#         json.dump(data_list, f, ensure_ascii=False, indent=4)
+
+result = mycol.insert_many(data_list)
+print("finish~")
 
 driver.close()
