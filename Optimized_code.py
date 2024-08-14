@@ -10,8 +10,10 @@ uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites
 client = pymongo.MongoClient(uri)
 # client = pymongo.MongoClient(uri, server_api=ServerApi('1'))
 
-mydb = client["WebInformation"]
-mycol = mydb["article"]
+# mydb = client["WebInformation"]
+# mycol = mydb["article"]
+mydb = client["Test"]
+mycol = mydb["info"]
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
@@ -36,6 +38,8 @@ for target in range(data_size):
     data_labels = {index: label.text for index, label in enumerate(labels)}
 
     print(data_title)
+    if mycol.find_one({"title": data_title}):
+        break
     driver.get(link)
 
     data_subtitle = []
@@ -94,8 +98,10 @@ for target in range(data_size):
 
 # with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
 #         json.dump(data_list, f, ensure_ascii=False, indent=4)
-
-result = mycol.insert_many(data_list)
-print("finish~")
+if data_list:
+    mycol.insert_many(data_list)
+    print("Inserted new data into the database.")
+else:
+    print("No new data to insert.")
 
 driver.close()
