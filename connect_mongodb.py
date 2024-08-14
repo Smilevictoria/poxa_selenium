@@ -26,7 +26,7 @@ for document in find_result2:
     if '市場資訊' in labels.values():
         print(document['title'])
 
-# Can use in "section"
+# Can use in "section" //2 for loops
 find_result3 = list(mycol.find({}))
 for document in find_result3:
     section = document.get('section', {})
