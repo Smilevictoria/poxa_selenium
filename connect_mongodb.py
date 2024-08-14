@@ -1,5 +1,4 @@
 import pymongo
-import json
 from pymongo.server_api import ServerApi
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"

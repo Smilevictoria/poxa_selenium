@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-import json
 import pymongo
 import json
 from pymongo.server_api import ServerApi
@@ -39,7 +38,7 @@ for target in range(data_size):
 
     if mycol.find_one({"title": data_title}):
         break
-    
+
     print(data_title)
     driver.get(link)
 
