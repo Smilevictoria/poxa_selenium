@@ -9,10 +9,8 @@ uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites
 client = pymongo.MongoClient(uri)
 # client = pymongo.MongoClient(uri, server_api=ServerApi('1'))
 
-# mydb = client["WebInformation"]
-# mycol = mydb["article"]
-mydb = client["Test"]
-mycol = mydb["info"]
+mydb = client["Test"] # WebInformation
+mycol = mydb["info"] # article
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
