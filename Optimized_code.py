@@ -9,8 +9,8 @@ uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites
 client = pymongo.MongoClient(uri)
 # client = pymongo.MongoClient(uri, server_api=ServerApi('1'))
 
-mydb = client["Test"] # WebInformation
-mycol = mydb["info"] # article
+mydb = client["WebInformation"] # Test
+mycol = mydb["article"] # info
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
@@ -43,7 +43,8 @@ for target in range(data_size):
 
     data_subtitle = []
     data_subContent = []
-    data_section = []
+    data_sectionTitle = []
+    data_sectionContent = []
     flag_k = 2
 
     # Collect subtitles and subcontents
@@ -71,25 +72,35 @@ for target in range(data_size):
 
     # Collect sections
     section_list = driver.find_elements(By.CLASS_NAME, "text-3xl.font-bold")
-    for flag in range(1, len(section_list)):
-        if section_list[flag].text == "下週預告❓":
-            break
-        sections_between_h2s = []
-        sections = section_list[flag].find_elements(By.XPATH, 'following-sibling::*')
-        for section in sections:
-            if section == section_list[flag + 1]:
+    for flag in range(1, len(section_list)-1):
+        sectionCont = ""
+        print(section_list[flag].text)
+        data_sectionTitle.append(section_list[flag].text)
+        while section_list[flag] != section_list[flag+1]:
+            sectionCont += section_list[flag].text + "\n"
+            try:
+                next_sibling = section_list[flag].find_element(By.XPATH, "following-sibling::*[1]")
+            except Exception as e:
+                print(f"Error finding next sibling: {e}")
                 break
-            sections_between_h2s.append(section)
-        data_section.append([s.text for s in sections_between_h2s if s.tag_name in ['p', 'ul', 'ol']])
+            if next_sibling == section_list[flag]:
+                break
+            section_list[flag] = next_sibling
+        data_sectionContent.append(sectionCont)
 
     # Prepare data to save in MongoDB
     data = {
         "title": data_title,
         "content": data_content,
         "labels": {str(i): data_labels[i] for i in range(len(data_labels))},
-        "subtitle": {str(i): data_subtitle[i] for i in range(len(data_subtitle))},
-        "subcontent": {str(i): data_subContent[i] for i in range(len(data_subContent))},
-        "section": {str(i): data_section[i] for i in range(len(data_section))}
+        "block": {str(i): {
+            "blockTitle": data_subtitle[i],
+            "blockContent": data_subContent[i]
+            } for i in range(len(data_subtitle))},
+        "section": {str(i): {
+            "sectionTitle": data_sectionTitle[i],
+            "sectionContent": data_sectionContent[i]
+            } for i in range(len(data_sectionTitle))}
     }
 
     data_list.append(data)
@@ -97,8 +108,9 @@ for target in range(data_size):
 
 # with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
 #         json.dump(data_list, f, ensure_ascii=False, indent=4)
+
 if data_list:
-    mycol.insert_many(data_list)
+    #mycol.insert_many(data_list)
     print("Inserted new data into the database.")
 else:
     print("No new data to insert.")

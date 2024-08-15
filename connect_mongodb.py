@@ -1,11 +1,12 @@
 import pymongo
 from pymongo.server_api import ServerApi
+import json
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
 
-mydb = client["Test"]
-mycol = mydb["info"]
+mydb = client["WebInformation"] # Test
+mycol = mydb["article"] # info
 
 # with open('GetchUp_data.json', 'r', encoding='utf-8') as f:
 #             existing_data = json.load(f)
