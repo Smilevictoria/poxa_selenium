@@ -34,6 +34,7 @@ for target in range(data_size):
     labels = label_list[target].find_elements(By.TAG_NAME, "span")
     data_labels = {index: label.text for index, label in enumerate(labels)}
 
+    # Check whether the same title exists in DB
     if mycol.find_one({"title": data_title}):
         break
 
