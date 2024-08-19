@@ -110,7 +110,7 @@ for target in range(data_size):
 #         json.dump(data_list, f, ensure_ascii=False, indent=4)
 
 if data_list:
-    #mycol.insert_many(data_list)
+    mycol.insert_many(data_list)
     print("Inserted new data into the database.")
 else:
     print("No new data to insert.")
