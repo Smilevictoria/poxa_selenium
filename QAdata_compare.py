@@ -89,7 +89,7 @@ def find_top_documents_by_keywords(keywords_3):
         
         # Count keywords in the combined_text
         counts = Counter(word for word in combined_text.split() if word in keywords_set)
-        
+
         # Calculate the total count of matching keywords
         total_count = sum(counts.values())
         if total_count > 0:
@@ -107,7 +107,6 @@ def generate_response(matched_docs, user_inputQA):
         top_docs = find_top_documents_by_keywords(keywords_3)
         documents_text = [doc.get('content', '') for doc in top_docs]  # Assuming 'content' is the text field
     else:
-        # Extract content from matched documents
         documents_text = [doc.get('content', '') for doc in matched_docs]  # Assuming 'content' is the text field
     
     # Create a prompt for GPT to generate a response based on the documents
