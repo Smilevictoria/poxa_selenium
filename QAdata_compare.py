@@ -82,10 +82,8 @@ def find_top_documents_by_keywords(keywords_3):
             for key, value in section_text_dict.items():
                 if isinstance(value, dict) and 'sectionContent' in value:
                     section_content = value['sectionContent']
-                    
                     # Check if any keyword is in the section_content
                     if any(keyword in section_content for keyword in keywords_set):
-                        # Add the section_content to matching_texts if it contains keywords
                         matching_texts.append(section_content)
         combined_text = " ".join(matching_texts)
         
