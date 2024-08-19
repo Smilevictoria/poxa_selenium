@@ -26,8 +26,8 @@ def generate_keywords(user_inputQA):
     )
 
     keywords = completion.choices[0].message.content.strip()
-    # 使用 OpenCC 進行簡體轉繁體
-    converter = opencc.OpenCC('s2tw')  # s2tw 是簡體到繁體的轉換
+    # use OpenCC transfering simple to traditional
+    converter = opencc.OpenCC('s2tw')  # s2tw transfering simple to traditional
     keywords_traditional = converter.convert(keywords)
     keywords_cleaned = re.sub(r'\s*[,\n]+\s*', ',', keywords_traditional) 
     keywords_neat = [keyword.strip() for keyword in keywords_cleaned.split(',') if keyword.strip()]
@@ -36,9 +36,6 @@ def generate_keywords(user_inputQA):
     return keyword_list
 
 def keyword_matches(doc_keywords, search_keywords):
-        """
-        Check if any of the search_keywords are found as substrings in doc_keywords.
-        """
         for keyword in search_keywords:
             if any(keyword in doc_keyword for doc_keyword in doc_keywords):
                 return True
