@@ -2,6 +2,7 @@ import pymongo
 from pymongo.server_api import ServerApi
 from openai import OpenAI
 import re
+import opencc
 from collections import Counter
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
@@ -10,13 +11,13 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '??????'
+api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 def generate_keywords(user_inputQA):
     conversation = [
-        {"role": "assistant", "content": "你是一個專業的關鍵字分析師，會根據問題進行分析並產生三個關鍵字，且確保這三個關鍵字能準確反映問題的核心內容。"},
-        {"role": "user", "content": f"為以下內容產生3個關鍵字，只輸出繁體關鍵字，使用逗號分隔: {user_inputQA}"}
+        {"role": "assistant", "content": "你是一個專業的關鍵字分析師，會根據問題進行分析並產生三個關鍵字，且確保這三個關鍵字能準確反映問題的核心內容，只用繁體中文回答。"},
+        {"role": "user", "content": f"為以下內容產生3個關鍵字，用繁體中文回答關鍵字，使用逗號分隔: {user_inputQA}"}
     ]
 
     completion = client.chat.completions.create(
@@ -25,7 +26,10 @@ def generate_keywords(user_inputQA):
     )
 
     keywords = completion.choices[0].message.content.strip()
-    keywords_cleaned = re.sub(r'\s*[,\n]+\s*', ',', keywords) 
+    # 使用 OpenCC 進行簡體轉繁體
+    converter = opencc.OpenCC('s2tw')  # s2tw 是簡體到繁體的轉換
+    keywords_traditional = converter.convert(keywords)
+    keywords_cleaned = re.sub(r'\s*[,\n]+\s*', ',', keywords_traditional) 
     keywords_neat = [keyword.strip() for keyword in keywords_cleaned.split(',') if keyword.strip()]
     keyword_list = {str(index): keyword for index, keyword in enumerate(keywords_neat)}
     print(keyword_list)
@@ -56,7 +60,11 @@ def fetch_and_compare_documents(keywords_3):
         # Check for partial matches
         if keyword_matches(doc_keywords_set, keywords_set):
             matched_docs.append(doc)
-            #print(f"title:{doc['title']}")
+
+        # # Check for partial matches
+        # if keyword_matches(doc_keywords_set, keywords_set):
+        #     matched_docs.append(doc)
+        #     #print(f"title:{doc['title']}")
     
     return matched_docs
 
@@ -109,7 +117,7 @@ def generate_response(matched_docs, user_inputQA):
         documents_text = [doc.get('content', '') for doc in matched_docs]  # Assuming 'content' is the text field
     
     # Create a prompt for GPT to generate a response based on the documents
-    prompt = f"請根據以下資料的內容精準的回答問題 '{user_inputQA}'。只回答問題：\n\n" + "\n\n".join(documents_text) + "\n\n"
+    prompt = f"請根據以下資料的內容精準的回答問題 '{user_inputQA}'。只回答問題，用繁體中文回答：\n\n" + "\n\n".join(documents_text) + "\n\n"
     
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -122,7 +130,8 @@ def generate_response(matched_docs, user_inputQA):
     return completion.choices[0].message.content
 
 # Example usage
-user_inputQA = "光儲的參與規則？"#幫我說明目前sReg價金的計算方式？
+user_inputQA = "我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？"#幫我說明目前sReg價金的計算方式？光儲的參與規則？
+print(user_inputQA)
 keywords_3 = generate_keywords(user_inputQA)
 matched_docs = fetch_and_compare_documents(keywords_3)
 response = generate_response(matched_docs, user_inputQA)
