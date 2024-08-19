@@ -109,7 +109,6 @@ def generate_response(matched_docs, user_inputQA):
     else:
         documents_text = [doc.get('content', '') for doc in matched_docs]  # Assuming 'content' is the text field
     
-    # Create a prompt for GPT to generate a response based on the documents
     prompt = f"請根據以下資料的內容精準的回答問題 '{user_inputQA}'。只回答問題，用繁體中文回答：\n\n" + "\n\n".join(documents_text) + "\n\n"
     
     completion = client.chat.completions.create(
@@ -119,7 +118,6 @@ def generate_response(matched_docs, user_inputQA):
             {"role": "user", "content": prompt}
         ]
     )
-    
     return completion.choices[0].message.content
 
 # Example usage
