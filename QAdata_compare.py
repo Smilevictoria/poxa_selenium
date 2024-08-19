@@ -120,8 +120,7 @@ def generate_response(matched_docs, user_inputQA):
     )
     return completion.choices[0].message.content
 
-# Example usage
-user_inputQA = "我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？"#幫我說明目前sReg價金的計算方式？光儲的參與規則？
+user_inputQA = "我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？" #幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
 print(user_inputQA)
 keywords_3 = generate_keywords(user_inputQA)
 matched_docs = fetch_and_compare_documents(keywords_3)
