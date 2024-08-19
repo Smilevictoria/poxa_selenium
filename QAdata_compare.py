@@ -50,7 +50,6 @@ def fetch_and_compare_documents(keywords_3):
     keywords_set = set(keywords_3.values())
     
     for doc in documents:
-        # Get keywords from the document and convert to set of values
         doc_keywords_dict = doc.get('keywords', {})
         doc_keywords_set = set(doc_keywords_dict.values())
 
