@@ -10,7 +10,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '????????'
+api_key = '??????'
 client = OpenAI(api_key = api_key)
 
 def generate_keywords(section_text):
@@ -35,10 +35,12 @@ all_data = mycol.find()
 
 for data in all_data:
     section_text = data.get("section", "")
-    if section_text:
+    existing_keywords = data.get("keywords", None)
+
+    if section_text and not existing_keywords:
         keyword_list = generate_keywords(section_text)
         # 更新
-        #mycol.update_one({"_id": data["_id"]}, {"$set": {"keywords": keyword_list}})
+        mycol.update_one({"_id": data["_id"]}, {"$set": {"keywords": keyword_list}})
         print(f"存入資料 : {keyword_list}")
 
 print("All keywords generated and stored in the database.")

@@ -1,8 +1,7 @@
 import pymongo
 from pymongo.server_api import ServerApi
 from openai import OpenAI
-import re
-import opencc
+import re, opencc
 from collections import Counter
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
@@ -11,7 +10,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '?????'
+api_key = '??????'
 client = OpenAI(api_key = api_key)
 
 def generate_keywords(user_inputQA):
@@ -101,13 +100,16 @@ def find_top_documents_by_keywords(keywords_3):
     return top_docs
 
 def generate_response(matched_docs, user_inputQA):
-    matched_docs =[]
     if not matched_docs:
-        # If no documents matched, find top documents by keywords
         top_docs = find_top_documents_by_keywords(keywords_3)
-        documents_text = [doc.get('content', '') for doc in top_docs]  # Assuming 'content' is the text field
+        target_doc = top_docs
     else:
-        documents_text = [doc.get('content', '') for doc in matched_docs]  # Assuming 'content' is the text field
+        target_doc = matched_docs
+
+    documents_text = [
+        doc.get('block', {}).get('blockContent', '') + '\n' + doc.get('section', {}).get('sectionContent', '') 
+        for doc in target_doc
+    ]
     
     prompt = f"請根據以下資料的內容精準的回答問題 '{user_inputQA}'。只回答問題，用繁體中文回答：\n\n" + "\n\n".join(documents_text) + "\n\n"
     
@@ -120,7 +122,7 @@ def generate_response(matched_docs, user_inputQA):
     )
     return completion.choices[0].message.content
 
-user_inputQA = "我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？" #幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
+user_inputQA = "幫我說明目前sReg價金的計算方式？" #我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
 print(user_inputQA)
 keywords_3 = generate_keywords(user_inputQA)
 matched_docs = fetch_and_compare_documents(keywords_3)
