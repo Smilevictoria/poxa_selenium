@@ -41,8 +41,8 @@ def generate_keywords(user_inputQA):
     )
 
     keywords = completion.choices[0].message.content.strip()
-    # use OpenCC transfering simple to traditional
-    converter = opencc.OpenCC('s2tw')  # s2tw transfering simple to traditional
+    # use OpenCC "s2tw" transfering simple to traditional
+    converter = opencc.OpenCC('s2tw')
     keywords_traditional = converter.convert(keywords)
     keywords_cleaned = re.sub(r'\s*[,\n]+\s*', ',', keywords_traditional) 
     keywords_neat = [keyword.strip() for keyword in keywords_cleaned.split(',') if keyword.strip()]
