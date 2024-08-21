@@ -13,7 +13,6 @@ api_key = '??????'
 client = OpenAI(api_key = api_key)
 
 def extract_keywords(question):
-    # 調用 GPT 模型提取關鍵詞
     prompt = f"請提取以下問題中的關鍵詞，並使用逗號分隔：\n問題：{question}\n\n關鍵詞："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -30,7 +29,6 @@ def extract_keywords(question):
     return keyword_list
 
 def classify_question(question):
-    # 調用 GPT 模型進行問題分類
     prompt = f"請將以下問題分類為事實性問題、意見性問題或推理性問題：\n問題：{question}\n\n分類："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -44,11 +42,9 @@ def classify_question(question):
     return classification_traditional
 
 def search_articles(question):
-    # 使用 GPT 提取關鍵詞
     keywords = extract_keywords(question)
     print("提取的關鍵詞:", keywords)
     
-    # 使用提取的關鍵詞進行 MongoDB 查詢
     query = {"$text": {"$search": " ".join(keywords)}}
     results = mycol.find(query)
     return list(results)
@@ -66,6 +62,7 @@ def generate_answer(question, articles, classification):
         for i, section in article['section'].items():
             content += f"部分內容: {section['sectionContent']}\n"
         content += "\n"
+        
         prompt = f"問題: {question}\n\n根據以下文章內容生成相關摘要500字:\n{content}\n\n"
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
