@@ -70,10 +70,6 @@ def fetch_and_compare_documents(appropriate_keywords, auto__keywords):
             matched_docs.append(doc)
         elif keyword_matches(doc_keywords_set, auto_keywords_set):
             matched_docs.append(doc)
-
-        # # Check if there is any intersection between the two sets
-        # if keywords_set.intersection(doc_keywords_set):
-        #     matched_docs.append(doc)
     
     return matched_docs
 
