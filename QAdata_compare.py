@@ -41,38 +41,25 @@ def keyword_matches(doc_keywords, search_keywords):
         return False
 
 def fetch_and_compare_documents(keywords_3):
-    # Fetch all documents from the collection
     documents = list(mycol.find({}))
-    matched_docs = []
-    
-    # Convert keywords_3 from dictionary to set of values
     keywords_set = set(keywords_3.values())
+    matched_docs = []
     
     for doc in documents:
         doc_keywords_dict = doc.get('keywords', {})
         doc_keywords_set = set(doc_keywords_dict.values())
 
-        # Check for partial matches
         if keyword_matches(doc_keywords_set, keywords_set):
             matched_docs.append(doc)
-
-        # # Check for partial matches
-        # if keyword_matches(doc_keywords_set, keywords_set):
-        #     matched_docs.append(doc)
-        #     #print(f"title:{doc['title']}")
     
     return matched_docs
 
 def find_top_documents_by_keywords(keywords_3):
-    # Fetch all documents from the collection
     documents = mycol.find()
-    
-    # Convert keywords from dictionary to set of values
     keywords_set = set(keywords_3.values())
     keyword_counts = []
     
     for doc in documents:
-        # Get section content from the document
         section_text_dict = doc.get('section', {})
         matching_texts = []
         
@@ -112,7 +99,6 @@ def generate_response(matched_docs, user_inputQA):
     ]
     
     prompt = f"請根據以下資料的內容精準的回答問題 '{user_inputQA}'。只回答問題，用繁體中文回答：\n\n" + "\n\n".join(documents_text) + "\n\n"
-    
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -123,9 +109,8 @@ def generate_response(matched_docs, user_inputQA):
     return completion.choices[0].message.content
 
 user_inputQA = "幫我說明目前sReg價金的計算方式？" #我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
-print(user_inputQA)
+print(f"user_inputQA:{user_inputQA}")
 keywords_3 = generate_keywords(user_inputQA)
 matched_docs = fetch_and_compare_documents(keywords_3)
 response = generate_response(matched_docs, user_inputQA)
-
 print(f"回答:{response}")
