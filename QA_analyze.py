@@ -9,7 +9,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '??????'
+api_key = '???????'
 client = OpenAI(api_key = api_key)
 
 def extract_keywords(question):
@@ -81,7 +81,7 @@ def generate_answer(question, articles, classification):
     elif "推理性問題" in classification:
         ans_type = "綜合"
 
-    prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}回答:\n{total_content}\n\n回答:"
+    prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}的回答:\n{total_content}\n\n回答:"
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -95,10 +95,10 @@ mycol.create_index([("content", "text"),
                     ("block.blockContent", "text"),
                     ("section.sectionContent", "text")])
 # mycol.drop_indexes() # 刪除所建立的索引
-user_input = "幫我說明目前sReg價金的計算方式？" #我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
+user_input = "目前調頻備轉價格是多少？" #幫我說明目前sReg價金的計算方式？我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
 converter = opencc.OpenCC('s2tw')
 qa_classification = classify_question(user_input)
-print("問題分類:", qa_classification)
+print("問題:", user_input,"\n問題分類:", qa_classification)
 appropriate_articles = search_articles(user_input)
 if appropriate_articles:
     answer = generate_answer(user_input, appropriate_articles, qa_classification)
