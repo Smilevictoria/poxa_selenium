@@ -51,7 +51,6 @@ def fetch_and_compare_documents(keywords_3):
 
         if keyword_matches(doc_keywords_set, keywords_set):
             matched_docs.append(doc)
-    
     return matched_docs
 
 def find_top_documents_by_keywords(keywords_3):
