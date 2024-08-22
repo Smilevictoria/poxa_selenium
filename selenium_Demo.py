@@ -36,7 +36,6 @@ def get_data_from_web(new_answer):
             else:
                 tags.append(tag[1])
                 print(tag[1].text)
-        # print(t.get_attribute('href')) 
         for t in tags:
             t.click()
 
@@ -45,7 +44,6 @@ def get_data_from_web(new_answer):
     data_list = []
     data_size = limit_size   # 要抓多少筆資料
     for target in range(data_size):
-        # print(driver.current_url)
         links_list = driver.find_elements(By.TAG_NAME,"a")
         link = links_list[target+16].get_attribute('href') #first title start from 16
         title_list = driver.find_elements(By.CLASS_NAME,"text-2xl.font-bold")
@@ -58,13 +56,9 @@ def get_data_from_web(new_answer):
         data_labels = {index: label.text for index, label in enumerate(labels)}
 
         print(data_title)
-        # print(data_content) 
-        # for index, label in enumerate(labels):
-        #     print(f"{index}: {label.text}")
 
         links_list[target+16].click()
         driver.get(link)
-        # print(driver.current_url)
 
         # subtitle 2~7 & sub_content 0~5
         data_subtitle = []
@@ -147,7 +141,6 @@ def get_data_from_web(new_answer):
     with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
         json.dump(existing_data, f, ensure_ascii=False, indent=4)
         
-    # driver.implicitly_wait(10)
     print("爬完ㄌㄌㄌㄌ~")
     driver.close
 
