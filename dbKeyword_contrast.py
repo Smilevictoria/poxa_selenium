@@ -9,7 +9,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '??????'
+api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 def choose_appropriate_keywords(user_input):
@@ -98,11 +98,11 @@ for doc in documents:
 
 unique_keywords_list = list(unique_keywords)
 
-user_input = "我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？" # 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
+user_input = "目前調頻備轉價格是多少？" #我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
 appropriate_keywords = choose_appropriate_keywords(user_input)
 auto_keywords = generate_keywords(user_input)
 print(f"user_input:{user_input}\nappropriate_keywords:{appropriate_keywords}\nauto_keywords:{auto_keywords}\n")
 doc_list = fetch_and_compare_documents(appropriate_keywords, auto_keywords)
 response = generate_response(doc_list, user_input)
-print(f"回答 : {response}")
+print(f"Ans: {response}")
 

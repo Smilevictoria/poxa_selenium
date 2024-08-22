@@ -21,7 +21,7 @@ origin_url = driver.current_url
 data_list = []
 
 # Calculate total number of items
-data_size = total_items = len(driver.find_elements(By.CLASS_NAME, "text-2xl.font-bold"))
+data_size = len(driver.find_elements(By.CLASS_NAME, "text-2xl.font-bold"))
 
 for target in range(data_size):
     links_list = driver.find_elements(By.TAG_NAME, "a")
@@ -106,8 +106,11 @@ for target in range(data_size):
     data_list.append(data)
     driver.get(origin_url)
 
+# with open('GetchUp_data.json', 'r', encoding='utf-8') as f:
+#         existing_data_list = json.load(f)
+# existing_data_list.append(data_list)
 # with open('GetchUp_data.json', 'w', encoding='utf-8') as f:
-#         json.dump(data_list, f, ensure_ascii=False, indent=4)
+#         json.dump(existing_data_list, f, ensure_ascii=False, indent=4)
 
 if data_list:
     mycol.insert_many(data_list)

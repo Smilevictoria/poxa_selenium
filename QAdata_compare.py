@@ -10,7 +10,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '??????'
+api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 def generate_keywords(user_inputQA):
@@ -31,7 +31,7 @@ def generate_keywords(user_inputQA):
     keywords_cleaned = re.sub(r'\s*[,\n]+\s*', ',', keywords_traditional) 
     keywords_neat = [keyword.strip() for keyword in keywords_cleaned.split(',') if keyword.strip()]
     keyword_list = {str(index): keyword for index, keyword in enumerate(keywords_neat)}
-    print(keyword_list)
+    print("Keywords:", keyword_list)
     return keyword_list
 
 def keyword_matches(doc_keywords, search_keywords):
@@ -108,9 +108,9 @@ def generate_response(matched_docs, user_inputQA):
     )
     return completion.choices[0].message.content
 
-user_inputQA = "幫我說明目前sReg價金的計算方式？" #我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
+user_inputQA = "目前調頻備轉價格是多少？" #幫我說明目前sReg價金的計算方式？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
 print(f"user_inputQA:{user_inputQA}")
 keywords_3 = generate_keywords(user_inputQA)
 matched_docs = fetch_and_compare_documents(keywords_3)
 response = generate_response(matched_docs, user_inputQA)
-print(f"回答:{response}")
+print(f"\nAns: {response}")

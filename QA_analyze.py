@@ -9,7 +9,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"] # Test
 mycol = mydb["article"] # info
 
-api_key = '???????'
+api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 def extract_keywords(question):
@@ -43,7 +43,7 @@ def classify_question(question):
 
 def search_articles(question):
     keywords = extract_keywords(question)
-    print("提取的關鍵詞:", keywords)
+    print("Keywords:", keywords)
     
     query = {"$text": {"$search": " ".join(keywords)}}
     results = mycol.find(query)
@@ -98,11 +98,11 @@ mycol.create_index([("content", "text"),
 user_input = "目前調頻備轉價格是多少？" #幫我說明目前sReg價金的計算方式？我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 光儲的參與規則？
 converter = opencc.OpenCC('s2tw')
 qa_classification = classify_question(user_input)
-print("問題:", user_input,"\n問題分類:", qa_classification)
+print("user_input:", user_input,"\nQA's classification:", qa_classification)
 appropriate_articles = search_articles(user_input)
 if appropriate_articles:
     answer = generate_answer(user_input, appropriate_articles, qa_classification)
     answer_traditional = converter.convert(answer)
-    print("回答:", answer_traditional)
+    print("\nAns:", answer_traditional)
 else:
-    print("無相關文章可供參考。")
+    print("NO Reference!!!。")
