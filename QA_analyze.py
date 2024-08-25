@@ -105,7 +105,7 @@ mycol.create_index([("content", "text"),
                     ("block.blockContent", "text"),
                     ("section.sectionContent", "text")])
 # mycol.drop_indexes() # 刪除所建立的索引
-user_input = "光儲的參與規則？" #目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
+user_input = "目前調頻備轉價格是多少？" # 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
 converter = opencc.OpenCC('s2tw')
 qa_classification = classify_question(user_input)
 print("user_input:", user_input,"\nQA's classification:", qa_classification)

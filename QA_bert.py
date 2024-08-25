@@ -2,6 +2,7 @@ import pymongo, time
 from pymongo.server_api import ServerApi
 from openai import OpenAI
 import numpy as np
+from sentence_transformers import SentenceTransformer
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
@@ -13,11 +14,7 @@ api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 def word_embedding(text):
-    response = client.embeddings.create(
-        model="text-embedding-ada-002",
-        input=text
-    )
-    return np.array(response.data[0].embedding)
+    return model.encode(text)
 
 def article_word_embedding():
     datas = list(mycol.find({}))
@@ -25,9 +22,13 @@ def article_word_embedding():
 
     for data in datas:
         combined_content = ""
-        
+
         for i, block in data['block'].items():
             combined_content += f"段落內容: {block['blockContent']}\n"
+        
+        for i, section in data['section'].items():
+            combined_content += f"部分內容: {section['sectionContent']}\n"
+        combined_content += "\n"
 
         article_embedding = word_embedding(combined_content)
         data_embedding.append((combined_content, article_embedding))
@@ -59,6 +60,7 @@ def generate_response(question, rel_content):
     return response.choices[0].message.content.strip()
 
 start_time = time.time()
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 user_input = "目前調頻備轉價格是多少？" #光儲的參與規則？
 qa_embedding = word_embedding(user_input)
