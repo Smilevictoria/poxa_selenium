@@ -64,7 +64,7 @@ def generate_response(question, rel_content):
 start_time = time.time()
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-user_input = "我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？" #目前調頻備轉價格是多少？ 光儲的參與規則？
+user_input = "光儲的參與規則？" # 目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？
 qa_embedding = word_embedding(user_input)
 article_embedding = article_word_embedding()
 relevant_content = find_most_relevant(qa_embedding, article_embedding)
