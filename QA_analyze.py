@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.server_api import ServerApi
 from openai import OpenAI
-import re, opencc
+import re, opencc, time
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
@@ -13,6 +13,8 @@ api_key = '?????'
 client = OpenAI(api_key = api_key)
 
 def extract_keywords(question):
+    global gpt_calls
+    gpt_calls+=1
     prompt = f"請提取以下問題中的關鍵詞，並使用逗號分隔：\n問題：{question}\n\n關鍵詞："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -29,6 +31,8 @@ def extract_keywords(question):
     return keyword_list
 
 def classify_question(question):
+    global gpt_calls
+    gpt_calls+=1
     prompt = f"請將以下問題分類為事實性問題、意見性問題或推理性問題：\n問題：{question}\n\n分類："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -50,6 +54,7 @@ def search_articles(question):
     return list(results)
 
 def generate_answer(question, articles, classification):
+    global gpt_calls
     total_content = ""
     for article in articles:
         content = ""
@@ -63,6 +68,7 @@ def generate_answer(question, articles, classification):
             content += f"部分內容: {section['sectionContent']}\n"
         content += "\n"
         
+        gpt_calls+=1
         prompt = f"問題: {question}\n\n根據以下文章內容生成相關摘要500字:\n{content}\n\n"
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -81,6 +87,7 @@ def generate_answer(question, articles, classification):
     elif "推理性問題" in classification:
         ans_type = "綜合"
 
+    gpt_calls+=1
     prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}的回答:\n{total_content}\n\n回答:"
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -91,12 +98,14 @@ def generate_answer(question, articles, classification):
     )
     return response.choices[0].message.content.strip()
 
+start_time = time.time()
+gpt_calls = 0
+
 mycol.create_index([("content", "text"),
                     ("block.blockContent", "text"),
                     ("section.sectionContent", "text")])
 # mycol.drop_indexes() # 刪除所建立的索引
-
-user_input = "光儲的參與詳細規則？" #目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
+user_input = "光儲的參與規則？" #目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
 converter = opencc.OpenCC('s2tw')
 qa_classification = classify_question(user_input)
 print("user_input:", user_input,"\nQA's classification:", qa_classification)
@@ -107,3 +116,8 @@ if appropriate_articles:
     print("\nAns:", answer_traditional)
 else:
     print("NO Reference!!!。")
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Total_running_time : {elapsed_time:.2f} s")
+print(f"Total GPT API calls: {gpt_calls}")
