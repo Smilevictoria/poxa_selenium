@@ -51,7 +51,7 @@ def find_most_relevant(qa_emb, article_emb):
     return most_relevant
 
 def generate_response(question, rel_content):
-    prompt = f"問題: {question}\n\n根據以下內容生成嚴謹的回答:\n{rel_content}\n\n回答:"
+    prompt = f"問題: {question}\n\n根據以下內容生成合理的回答:\n{rel_content}\n\n回答:"
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -64,7 +64,7 @@ def generate_response(question, rel_content):
 start_time = time.time()
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-user_input = "光儲的參與規則？" # 目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？
+user_input = "目前調頻備轉價格是多少？" # 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？
 qa_embedding = word_embedding(user_input)
 article_embedding = article_word_embedding()
 relevant_content = find_most_relevant(qa_embedding, article_embedding)
