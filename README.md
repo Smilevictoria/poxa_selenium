@@ -13,3 +13,7 @@
 - dbKeyword_contrast.py
 
 - qa_analyze.py
+
+- QAword_embedding.py
+
+- QA_bert.py
