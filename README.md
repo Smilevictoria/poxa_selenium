@@ -17,3 +17,5 @@
 - QAword_embedding.py
 
 - QA_bert.py
+
+* QA_etp_offering.py -> load json file to be DB
