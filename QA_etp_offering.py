@@ -7,46 +7,6 @@ client = pymongo.MongoClient(uri)
 api_key = '?????'
 client = OpenAI(api_key = api_key)
 
-def generate_answer_logic(question, rule):
-    prompt = f"""
-    根據以下規則和 JSON 結構生成Python代碼來回答問題。
-
-    JSON_DATA example：
-    [
-        {{
-            "date": "YYYY-MM-DD",
-            "hour": "HH:MM",
-            "edregOffering": float,
-            "edregOfferingQse": float,
-            "regOffering": float,
-            "regOfferingQse": float,
-            "srOffering": float,
-            "srOfferingQse": float,
-            "supOffering": float,
-            "supOfferingQse": float
-        }},
-        ...
-    ]
-
-    規則: {rule}
-
-    問題: {question}
-
-    請生成Python代碼來處理上述JSON數據並計算答案。代碼應該能識別問題中的商品類型和是否為民營合格交易者(Qse)，並根據指定的日期進行計算。確保代碼是完整的，並使用 try-except 結構來處理任何可能的錯誤。
-    """
-    
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "你是一個專業的問題解答助手，請根據以下規則生成 MongoDB 查詢。"},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500
-    )
-
-    query = response.choices[0].message.content.strip()
-    return query
-
 def execute_code_logic(data, date, product_prefix, is_qse):
     try:
         total_price = 0
