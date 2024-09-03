@@ -18,4 +18,6 @@
 
 - QA_bert.py
 
-* QA_etp_offering.py -> load json file to be DB
+#### Test
+
+- QA_etp_offering.py -> load json file to be DB
