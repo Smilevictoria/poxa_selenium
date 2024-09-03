@@ -2,7 +2,7 @@ from openai import OpenAI
 from selenium_Demo import get_data_from_web
 import pymongo
 from pymongo.server_api import ServerApi
-import json, re
+import re
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
