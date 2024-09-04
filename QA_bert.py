@@ -13,10 +13,10 @@ mycol = mydb["article"] # info
 api_key = '?????'
 client = OpenAI(api_key = api_key)
 
-def word_embedding(text):
+def text_embedding(text):
     return model.encode(text)
 
-def article_word_embedding():
+def article_text_embedding():
     datas = list(mycol.find({}))
     data_embedding = []
 
@@ -32,7 +32,7 @@ def article_word_embedding():
             combined_content += f"部分內容: {section['sectionContent']}\n"
         combined_content += "\n"
 
-        article_embedding = word_embedding(combined_content)
+        article_embedding = text_embedding(combined_content)
         data_embedding.append((combined_content, article_embedding))
     return data_embedding
 
@@ -65,8 +65,8 @@ start_time = time.time()
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 user_input = "目前調頻備轉價格是多少？" # 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？
-qa_embedding = word_embedding(user_input)
-article_embedding = article_word_embedding()
+qa_embedding = text_embedding(user_input)
+article_embedding = article_text_embedding()
 relevant_content = find_most_relevant(qa_embedding, article_embedding)
 response = generate_response(user_input, relevant_content)
 
