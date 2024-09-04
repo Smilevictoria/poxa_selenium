@@ -12,14 +12,14 @@ mycol = mydb["article"] # info
 api_key = '?????'
 client = OpenAI(api_key = api_key)
 
-def word_embedding(text):
+def text_embedding(text):
     response = client.embeddings.create(
         model="text-embedding-ada-002",
         input=text
     )
     return np.array(response.data[0].embedding)
 
-def article_word_embedding():
+def article_text_embedding():
     datas = list(mycol.find({}))
     data_embedding = []
 
@@ -29,7 +29,7 @@ def article_word_embedding():
         for i, block in data['block'].items():
             combined_content += f"段落內容: {block['blockContent']}\n"
 
-        article_embedding = word_embedding(combined_content)
+        article_embedding = text_embedding(combined_content)
         data_embedding.append((combined_content, article_embedding))
     return data_embedding
 
@@ -61,8 +61,8 @@ def generate_response(question, rel_content):
 start_time = time.time()
 
 user_input = "目前調頻備轉價格是多少？" #光儲的參與規則？
-qa_embedding = word_embedding(user_input)
-article_embedding = article_word_embedding()
+qa_embedding = text_embedding(user_input)
+article_embedding = article_text_embedding()
 relevant_content = find_most_relevant(qa_embedding, article_embedding)
 response = generate_response(user_input, relevant_content)
 
