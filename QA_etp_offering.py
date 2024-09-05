@@ -4,9 +4,6 @@ from openai import OpenAI
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
 
-# api_key = '?????'
-# client = OpenAI(api_key = api_key)
-
 def execute_code_logic(data, date, product_prefix, is_qse):
     try:
         total_price = 0
@@ -60,6 +57,6 @@ if product_prefix is not None:
         existing_data = json.load(f)
 
     answer = execute_code_logic(existing_data, date, product_prefix, is_qse)
-    print(f"回答: {answer}")
+    print(f"回答: {answer:.2f}")
 else:
     print("無法解析您的問題，請確認輸入格式。")
