@@ -25,11 +25,17 @@ def article_text_embedding():
 
     for data in datas:
         combined_content = ""
+        embedding_content = ""
         
         for i, block in data['block'].items():
             combined_content += f"段落內容: {block['blockContent']}\n"
+            embedding_content += f"段落內容: {block['blockContent']}\n"
+        
+        for i, section in data['section'].items():
+            combined_content += f"部分內容: {section['sectionContent']}\n"
+        combined_content += "\n"
 
-        article_embedding = text_embedding(combined_content)
+        article_embedding = text_embedding(embedding_content)
         data_embedding.append((combined_content, article_embedding))
     return data_embedding
 
