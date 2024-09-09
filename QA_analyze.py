@@ -1,7 +1,10 @@
 import pymongo
 from pymongo.server_api import ServerApi
 from openai import OpenAI
+from datetime import datetime
 import re, opencc, time
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
@@ -11,6 +14,39 @@ mycol = mydb["article"] # info
 
 api_key = '?????'
 client = OpenAI(api_key = api_key)
+
+def extract_date_from_title(title):
+    # 日期格式為 "YYYY MM/DD"
+    match = re.search(r'(\d{4}) (\d{1,2})/(\d{1,2})', title)
+    if match:
+        year, month, day = map(int, match.groups())
+        return datetime(year, month, day)
+    return None
+
+def search_latest_article():
+    current_date = datetime.now()
+
+    all_articles = list(mycol.find({}, {"title": 1})) 
+    
+    closest_article = None
+    closest_date_diff = float('inf') 
+
+    for article in all_articles:
+        title = article['title']
+        article_date = extract_date_from_title(title)
+        
+        if article_date:
+            date_diff = abs((current_date - article_date).days)  # 計算日期差異
+            if date_diff < closest_date_diff:
+                closest_date_diff = date_diff
+                closest_article = article
+
+    if closest_article:
+        full_article = mycol.find_one({"_id": closest_article["_id"]})
+        return full_article
+    else:
+        print("無法找到接近當前日期的文章")
+        return None
 
 def extract_keywords(question):
     global gpt_calls
@@ -30,14 +66,29 @@ def extract_keywords(question):
     keyword_list = {str(index): keyword for index, keyword in enumerate(keywords_neat)}
     return keyword_list
 
-def classify_question(question):
+def classify_question_lastest(question):
     global gpt_calls
-    gpt_calls+=1
-    prompt = f"請將以下問題分類為事實性問題、意見性問題或推理性問題：\n問題：{question}\n\n分類："
+    gpt_calls += 1
+    prompt = f"請判斷以下問題是否為關於當前或最新的信息：\n問題：{question}\n\n請回答是或否就好，無須回答其他額外資訊："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "你是一個專業的問題解答助手，請將問題分類為事實性問題、意見性問題或推理性問題。"},
+            {"role": "system", "content": "你是一個專業的問題分類助手，請判斷問題是否涉及到當前或最新的信息。"},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    answer = response.choices[0].message.content.strip()
+    if "是" in answer :
+        return True
+
+def classify_question(question):
+    global gpt_calls
+    gpt_calls+=1
+    prompt = f"請將以下問題分類：\n問題：{question}\n\n分類："
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "你是一個專業的問題解答助手，請將問題分類成數據型問題和敘述型問題，如果是敘述型問題的話，請再細分為事實性問題、意見性問題或推理性問題。"},
             {"role": "user", "content": prompt}
         ]
     )
@@ -53,32 +104,9 @@ def search_articles(question):
     results = mycol.find(query)
     return list(results)
 
-def generate_answer(question, articles, classification):
+def generate_answer(question, article, classification):
     global gpt_calls
-    total_content = ""
-    for article in articles:
-        content = ""
-        content += f"標題: {article['title']}\n"
-        content += f"內容: {article['content']}\n"
-        
-        for i, block in article['block'].items():
-            content += f"段落內容: {block['blockContent']}\n"
-        
-        for i, section in article['section'].items():
-            content += f"部分內容: {section['sectionContent']}\n"
-        content += "\n"
-        
-        gpt_calls+=1
-        prompt = f"問題: {question}\n\n根據以下文章內容生成相關摘要500字:\n{content}\n\n"
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "你是一個專業的問題解答助手，請根據資料回答相關內容。"},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        total_content += response.choices[0].message.content.strip() +"\n"
-    
+
     ans_type = ""
     if "事實性問題" in classification:
         ans_type = "簡明"
@@ -88,7 +116,55 @@ def generate_answer(question, articles, classification):
         ans_type = "綜合"
 
     gpt_calls+=1
-    prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}的回答:\n{total_content}\n\n回答:"
+    prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}的回答:\n{article}\n\n回答:"
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "你是一個專業的問題解答助手，請根據資料直接回答問題，不要提供額外的解釋或背景資訊。"},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content.strip()
+
+def text_embedding(text):
+    return model.encode(text)
+
+def article_text_embedding():
+    datas = list(mycol.find({}))
+    data_embedding = []
+
+    for data in datas:
+        combined_content = ""
+
+        for i, block in data['block'].items():
+            combined_content += f"段落內容: {block['blockContent']}\n"
+        
+        for i, section in data['section'].items():
+            combined_content += f"部分內容: {section['sectionContent']}\n"
+        combined_content += "\n"
+
+        article_embedding = text_embedding(combined_content)
+        data_embedding.append((combined_content, article_embedding))
+    return data_embedding
+
+def cosine_similarity(embedding1, embedding2):
+    return np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
+
+def find_most_relevant(qa_emb, article_emb):
+    max_similarity = -1
+    most_relevant = None
+
+    for data, embedding in article_emb:
+        similarity = cosine_similarity(qa_emb, embedding)
+        if similarity > max_similarity:
+            max_similarity = similarity
+            most_relevant = data
+    return most_relevant
+
+def generate_response(question, rel_content):
+    global gpt_calls
+    gpt_calls+=1
+    prompt = f"問題: {question}\n\n根據以下內容生成合理的回答:\n{rel_content}\n\n回答:"
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -99,23 +175,39 @@ def generate_answer(question, articles, classification):
     return response.choices[0].message.content.strip()
 
 start_time = time.time()
+model = SentenceTransformer('all-MiniLM-L6-v2')
 gpt_calls = 0
 
 mycol.create_index([("content", "text"),
                     ("block.blockContent", "text"),
                     ("section.sectionContent", "text")])
 # mycol.drop_indexes() # 刪除所建立的索引
-user_input = "目前調頻備轉價格是多少？" # 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
+user_input = input("請輸入您的問題: ")
+#目前即時備轉價格是多少？ 光儲的參與規則？ 幫我說明目前sReg價金的計算方式？ 目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
 converter = opencc.OpenCC('s2tw')
 qa_classification = classify_question(user_input)
-print("user_input:", user_input,"\nQA's classification:", qa_classification)
-appropriate_articles = search_articles(user_input)
-if appropriate_articles:
-    answer = generate_answer(user_input, appropriate_articles, qa_classification)
+print("QA's classification:", qa_classification)
+if "數據型問題" in qa_classification:
+    if classify_question_lastest(user_input):
+        print("search_latest_article")
+        lastest_article = search_latest_article()
+        response = generate_response(user_input, lastest_article)
+    else:
+        qa_embedding = text_embedding(user_input)
+        article_embedding = article_text_embedding()
+        relevant_content = find_most_relevant(qa_embedding, article_embedding)
+        response = generate_response(user_input, relevant_content)
+    print("\nAns:", response)
+else:
+    if classify_question_lastest(user_input):
+        print("search_latest_article")
+        lastest_article = search_latest_article()
+        answer = generate_answer(user_input, lastest_article, qa_classification)
+    else:
+        appropriate_articles = search_articles(user_input)
+        answer = generate_answer(user_input, appropriate_articles, qa_classification)
     answer_traditional = converter.convert(answer)
     print("\nAns:", answer_traditional)
-else:
-    print("NO Reference!!!。")
 
 end_time = time.time()
 elapsed_time = end_time - start_time
