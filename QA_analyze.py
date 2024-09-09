@@ -55,7 +55,7 @@ def extract_keywords(question):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "你是一個專業的問題解答助手，請從問題中提取出關鍵詞。"},
+            {"role": "system", "content": "你是一個專業的問題解答助手，請從問題中提取出關鍵詞，遇到以下關鍵字請勿拆解它:光儲合一、光合作用、調頻轉備。"},
             {"role": "user", "content": prompt}
         ]
     )
