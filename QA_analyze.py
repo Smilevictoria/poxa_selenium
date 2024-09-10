@@ -184,7 +184,8 @@ mycol.create_index([("content", "text"),
                     ("section.sectionContent", "text")])
 # mycol.drop_indexes() # 刪除所建立的索引
 user_input = input("請輸入您的問題: ")
-#目前即時備轉價格是多少？ 光儲的參與規則？ 幫我說明目前sReg價金的計算方式？ 目前調頻備轉價格是多少？ 我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 幫我說明目前sReg價金的計算方式？ 光儲的參與規則？
+#目前即時備轉價格是多少？ 幫我說明目前sReg價金的計算方式？ 
+#我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 
 converter = opencc.OpenCC('s2tw')
 qa_classification = classify_question(user_input)
 print("QA's classification:", qa_classification)
