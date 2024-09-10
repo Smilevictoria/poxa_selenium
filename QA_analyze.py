@@ -1,8 +1,7 @@
-import pymongo
+import pymongo, re, opencc, time
 from pymongo.server_api import ServerApi
 from openai import OpenAI
 from datetime import datetime
-import re, opencc, time
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
