@@ -11,7 +11,7 @@ client = pymongo.MongoClient(uri)
 mydb = client["WebInformation"]
 mycol = mydb["article"]
 noundb = client["Test"] 
-nouncol = mydb["definitions"]
+nouncol = noundb["definitions"]
 
 api_key = '?????'
 client = OpenAI(api_key = api_key)
@@ -51,12 +51,18 @@ def search_latest_article():
 
 def extract_keywords(question):
     global gpt_calls
+
+    nouns = list(nouncol.find({}))
+    terms = [noun['term'] for noun in nouns]  
+    terms_string = '、'.join(terms) 
+    print("terms_string:", terms_string)
+ 
     gpt_calls+=1
     prompt = f"請提取以下問題中的關鍵詞，並使用逗號分隔：\n問題：{question}\n\n關鍵詞："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "你是一個專業的問題解答助手，請從問題中提取出關鍵詞，遇到以下關鍵字請勿拆解它:光儲合一、光合作用、調頻轉備。"},
+            {"role": "system", "content": f"你是一個專業的問題解答助手，請從問題中提取出關鍵詞，遇到以下關鍵字請勿拆解它:{terms_string}"}, #:光儲合一、光合作用、調頻轉備。
             {"role": "user", "content": prompt}
         ]
     )
@@ -183,6 +189,7 @@ mycol.create_index([("content", "text"),
                     ("block.blockContent", "text"),
                     ("section.sectionContent", "text")])
 # mycol.drop_indexes() # 刪除所建立的索引
+
 user_input = input("請輸入您的問題: ")
 #目前即時備轉價格是多少？ 幫我說明目前sReg價金的計算方式？ 
 #我有1MW的光電案場，可以蓋多大的儲能案場？收益大概如何？ 最新的dReg商品價格？以及目前參與容量？ 
