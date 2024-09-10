@@ -9,8 +9,10 @@ from sentence_transformers import SentenceTransformer
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
 
-mydb = client["WebInformation"] # Test
-mycol = mydb["article"] # info
+mydb = client["WebInformation"]
+mycol = mydb["article"]
+noundb = client["Test"] 
+nouncol = mydb["definitions"]
 
 api_key = '?????'
 client = OpenAI(api_key = api_key)
