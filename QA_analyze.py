@@ -55,7 +55,6 @@ def extract_keywords(question):
     nouns = list(nouncol.find({}))
     terms = [noun['term'] for noun in nouns]  
     terms_string = '、'.join(terms) 
-    print("terms_string:", terms_string)
  
     gpt_calls+=1
     prompt = f"請提取以下問題中的關鍵詞，並使用逗號分隔：\n問題：{question}\n\n關鍵詞："
@@ -76,17 +75,19 @@ def extract_keywords(question):
 def classify_question_lastest(question):
     global gpt_calls
     gpt_calls += 1
-    prompt = f"請判斷以下問題是否為關於當前或最新的信息：\n問題：{question}\n\n請回答是或否就好，無須回答其他額外資訊："
+    prompt = f"請判斷以下問題是否有明確提及到當前或最新之類的時間點，請使用0.1的溫度回答：\n問題：{question}\n\n請回答是或否就好，無須回答其他額外資訊："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "你是一個專業的問題分類助手，請判斷問題是否涉及到當前或最新的信息。"},
+            {"role": "system", "content": "你是一個專業的問題分類助手，請判斷問題是否有明確提及到當前或最新之類的時間點。"},
             {"role": "user", "content": prompt}
         ]
     )
     answer = response.choices[0].message.content.strip()
     if "是" in answer :
         return True
+    else:
+        return False
 
 def classify_question(question):
     global gpt_calls
@@ -109,6 +110,8 @@ def search_articles(question):
     
     query = {"$text": {"$search": " ".join(keywords)}}
     results = mycol.find(query)
+    if results == []:
+        print("Empty")
     return list(results)
 
 def generate_answer(question, article, classification):
@@ -166,6 +169,7 @@ def find_most_relevant(qa_emb, article_emb):
         if similarity > max_similarity:
             max_similarity = similarity
             most_relevant = data
+            #print(data["title"])
     return most_relevant
 
 def generate_response(question, rel_content):
@@ -202,6 +206,7 @@ if "數據型問題" in qa_classification:
         lastest_article = search_latest_article()
         response = generate_response(user_input, lastest_article)
     else:
+        print("Bert Module")
         qa_embedding = text_embedding(user_input)
         article_embedding = article_text_embedding()
         relevant_content = find_most_relevant(qa_embedding, article_embedding)
