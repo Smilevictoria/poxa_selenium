@@ -57,7 +57,7 @@ def extract_keywords(question):
     terms_string = '、'.join(terms) 
  
     gpt_calls+=1
-    prompt = f"請提取以下問題中的關鍵詞，並使用逗號分隔：\n問題：{question}\n\n關鍵詞："
+    prompt = f"請提取以下問題中的關鍵詞，使用逗號分隔，並使用0.2的溫度回答：\n問題：{question}\n\n關鍵詞："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -92,7 +92,7 @@ def classify_question_lastest(question):
 def classify_question(question):
     global gpt_calls
     gpt_calls+=1
-    prompt = f"請將以下問題分類：\n問題：{question}\n\n分類："
+    prompt = f"請將以下問題分類，使用0.3的溫度回答：\n問題：{question}\n\n分類："
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -126,7 +126,7 @@ def generate_answer(question, article, classification):
         ans_type = "綜合"
 
     gpt_calls+=1
-    prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}的回答:\n{article}\n\n回答:"
+    prompt = f"問題: {question}\n\n根據以下文章內容生成{ans_type}的回答，請使用0.8的溫度回答:\n{article}\n\n回答:"
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -175,7 +175,7 @@ def find_most_relevant(qa_emb, article_emb):
 def generate_response(question, rel_content):
     global gpt_calls
     gpt_calls+=1
-    prompt = f"問題: {question}\n\n根據以下內容生成合理的回答:\n{rel_content}\n\n回答:"
+    prompt = f"問題: {question}\n\n根據以下內容生成合理的回答，請使用0.8的溫度回答:\n{rel_content}\n\n回答:"
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
