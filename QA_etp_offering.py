@@ -4,7 +4,14 @@ from openai import OpenAI
 uri = "mongodb+srv://victoria91718:white0718@poxa.1j2eh.mongodb.net/?retryWrites=true&w=majority&appName=poxa"
 client = pymongo.MongoClient(uri)
 
+<<<<<<< HEAD
+api_key = '?????'
+client = OpenAI(api_key = api_key)
+
+def execute_code_logic(data, date, prefix, is_qse, suffix):
+=======
 def execute_code_logic(data, date, product_prefix, is_qse):
+>>>>>>> parent of 0a7e511 (Update QA_etp_offering)
     try:
         total_price = 0
         count = 0
